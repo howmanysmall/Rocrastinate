@@ -1,4 +1,4 @@
-local Maid = require(script.Parent.Maid)
+local Janitor = require(script.Parent.Janitor)
 local FastSpawn = require(script.Parent.Util.FastSpawn)
 local ParseKeypath = require(script.Parent.Util.ParseKeypath)
 local RunService = game:GetService("RunService")
@@ -68,7 +68,7 @@ function Component:constructor(store)
 	end
 	
 	
-	self.maid = Maid.new()
+	self.janitor = Janitor.new()
 	
 	-- Map reduction
 	local mappedStateKeys = {}
@@ -129,12 +129,10 @@ function Component:constructor(store)
 	-- Subscribe to reduction
 	if useStore and self.Reduction then
 		for k, strKeypath in pairs(self.Reduction) do
-			self.maid:GiveTask(
-				store.subscribe(strKeypath, function()
-					readOnlyCache[strKeypath] = nil
-					self.queueRedraw()
-				end)
-			)
+			self.janitor:Add(store.subscribe(strKeypath, function()
+				readOnlyCache[strKeypath] = nil
+				self.queueRedraw()
+			end), true)
 		end
 	end
 end
@@ -172,7 +170,7 @@ function Component:extend()
 		return self
 	end
 	function componentStatics:Destroy()
-		self.maid:CleanupAllTasks()
+		self.janitor:Cleanup()
 		renderStepQueue[self] = nil
 		heartbeatQueue[self] = nil
 		renderStepTwiceQueue[self] = nil
